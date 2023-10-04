@@ -1,15 +1,23 @@
 Question 1: How many visitors visited 1 or more products?
 
 SQL Queries:
-with visitinfo as(select v2productname,fullvisitorid ,  ---- It gives row_num to each visit of each visitor
+
+---- It gives row_num to each visit of each visitor
+
+with visitinfo as(select v2productname,fullvisitorid ,  
 row_number() over (partition by fullvisitorid) as row_num
 from all_sessions_clean),
+
+---- It counts row_num of each visitor
  
-visits as(                                              ---- It counts row_num of each visitor
+visits as(                                              
 select count(row_num)as CNT,fullvisitorid from visitinfo
 group by fullvisitorid
 )
-SELECT COUNT(*) as "Number of visitors", CNT as "Number of Products" FROM visits  ---- It tells about how many visitors visit certain no. of products
+
+---- It tells about how many visitors visit certain no. of products
+
+SELECT COUNT(*) as "Number of visitors", CNT as "Number of Products" FROM visits    ---- It tells about how many visitors visit certain no. of products
 GROUP BY 2
 order by 1 desc 
 
@@ -27,6 +35,7 @@ Answer: Around 13431 visitors visited only 1 product
 Question 2: Top 10 countries from where visitor number is highest
 
 SQL Queries:
+
 select COUNT(fullvisitorid) as VISITOR_COUNT,COUNTRY  FROM public.all_sessions_clean
 group by country
 order by 1 desc limit 10
@@ -67,16 +76,23 @@ SQL Queries:
 (select count(*) as Men_count,CASE WHEN v2productcategory like '%Apparel/Men''s%' THEN 'Men''s' END AS v2productcategory from all_sessions_clean
 where v2productcategory like '%Apparel/Men''s%' and country='United States'
 group by CASE WHEN v2productcategory like '%Apparel/Men''s%' THEN 'Men''s' END
-order by 1 desc )   ----- It gives total count for products visited in Men's apparel
+order by 1 desc ) 
+
+----- It gives total count for products visited in Men's apparel
+
 union all
 (select count(*) as Women_count,CASE WHEN v2productcategory like '%Apparel/Women''s%' THEN 'Women''s' END AS v2productcategory from all_sessions_clean
 where v2productcategory like '%Apparel/Women''s%' and country='United States'
 group by CASE WHEN v2productcategory like '%Apparel/Women''s%' THEN 'Women''s' END
-order by 1 desc )    ----- It gives total count for products visited in Women's apparel
+order by 1 desc )   
+
+----- It gives total count for products visited in Women's apparel
+
 union all
 (select count(*) as Kids_count,CASE WHEN v2productcategory like '%Apparel/Kid''s%' THEN 'Kid''s' END AS v2productcategory from all_sessions_clean
 where v2productcategory like '%Apparel/Kid''s%' and country='United States'
 group by CASE WHEN v2productcategory like '%Apparel/Kid''s%' THEN 'Kid''s' END
+
 order by 1 desc)    ----- It gives total count for products visited in Kid's apparel
 
 
@@ -92,11 +108,17 @@ Answer: Men's wear is visited most on this website
 Question 5: Visitors from which country spend most time on this website
 
 SQL Queries:
+
+ ----- It gives total time spent by each visitor
+
 with total_t as
-(select sum(timeonsite)/60 as total_time,fullvisitorid from all_sessions_clean  ----- It gives total time spent by each visitor
+(select sum(timeonsite)/60 as total_time,fullvisitorid from all_sessions_clean 
 group by fullvisitorid
 order by 1 desc )
-select sum(total_time),country from all_sessions_clean ac       ----- It gives total time spend by visitors from each country limited by top 10
+
+----- It gives total time spend by visitors from each country limited by top 10
+
+select sum(total_time),country from all_sessions_clean ac       
 join total_t tt on ac.fullvisitorid=tt.fullvisitorid
 group by country
 order by 1 desc limit 10
